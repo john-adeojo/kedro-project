@@ -1,0 +1,4 @@
+model_options:
+  seed: 42
+  test_size: 0.2
+  data_location: G:/My Drive/Data-Centric Solutions/07. Blog Posts/kedro/data/creditcard.csv
