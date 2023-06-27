@@ -25,7 +25,7 @@ register_model:
 
 model_weights:
   type: kedro.extras.datasets.pickle.PickleDataSet
-  filepath: data/06_models/latest_model_artefacts/model_weights
+  filepath: data/06_models/latest_model_artefacts/model_weights.pickle
 
 training_statistics:
   type: kedro.extras.datasets.json.JSONDataSet

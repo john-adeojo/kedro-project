@@ -4,7 +4,7 @@ generated using Kedro 0.18.10
 """
 
 from kedro.pipeline import Pipeline, node, pipeline
-from .nodes import read_data, split_data, run_experiment, register_model_artefacts, run_predictions, model_training_diagnostics 
+from .nodes import read_data, split_data, run_experiment, run_predictions, model_training_diagnostics 
 
 
 def create_pipeline(**kwargs) -> Pipeline:
@@ -28,21 +28,21 @@ def create_pipeline(**kwargs) -> Pipeline:
                 outputs="exp_run",
                 name="Run_Experiment"
             ),
-            node(
-                func=register_model_artefacts,
-                inputs=["exp_run", "params:output_dir"],
-                outputs="register_model",
-                name="Register_Model_Artefacts"
-            ),
+            # node(
+            #     func=register_model_artefacts,
+            #     inputs=["exp_run", "params:output_dir"],
+            #     outputs="register_model",
+            #     name="Register_Model_Artefacts"
+            # ),
             node(
                 func=run_predictions,
-                inputs=["holdout_df", "register_model", "model_weights"],
+                inputs=["holdout_df", "exp_run", "params:output_dir"],
                 outputs="full_predictions",
                 name="Run_Predictions"
             ),
             node(
                 func=model_training_diagnostics,
-                inputs=["full_predictions", "training_statistics"],
+                inputs=["full_predictions"],
                 outputs=["loss_plot", "roc_curve"],
                 name="Model_Diagnostics"
             )

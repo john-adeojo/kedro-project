@@ -103,38 +103,44 @@ def run_experiment(train_df: pd.DataFrame, model_yaml, output_dir) -> pd.DataFra
     return exp_run
 
 
-def register_model_artefacts(exp_run: pd.DataFrame, output_dir) -> pd.DataFrame:
+# def register_model_artefacts(exp_run: pd.DataFrame, output_dir) -> pd.DataFrame:
     
-    print("PARAMETERS!!!", output_dir)
+#     print("PARAMETERS!!!", output_dir)
     
-    # create dummy output
-    register_model = exp_run
+#     # create dummy output
+#     register_model = exp_run
         
-    # Get the latest experiment directory
+#     # Get the latest experiment directory
+#     latest_experiment_dir = get_latest_experiment_dir(output_dir)
+    
+#     # copy model_Weights to latest artefacts
+#     source_path = Path(latest_experiment_dir) / 'model' / 'model_weights'
+#     destination_dir = Path("data/06_models/latest_model_artefacts/")
+#     destination_path = destination_dir / 'model_weights'
+#     # Ensure the destination directory exists
+#     destination_dir.mkdir(parents=True, exist_ok=True)
+#     shutil.copy2(source_path, destination_path)
+    
+#     # copy statistics to latest artefacts
+#     source_path = Path(latest_experiment_dir) / 'training_statistics.json'
+#     destination_dir = Path("../data/06_models/latest_model_artefacts/")
+#     destination_path = destination_dir / 'training_statistics.json'
+#     # Ensure the destination directory exists
+#     destination_dir.mkdir(parents=True, exist_ok=True)
+#     shutil.copy2(source_path, destination_path)
+
+#     return register_model
+
+def run_predictions(holdout_df: pd.DataFrame, exp_run: pd.DataFrame, output_dir) -> pd.DataFrame:
+    
+    # dummpy input varibale
+    df = exp_run
+    
     latest_experiment_dir = get_latest_experiment_dir(output_dir)
-    
-    # copy model_Weights to latest artefacts
-    source_path = Path(latest_experiment_dir) / 'model' / 'model_weights'
-    destination_dir = Path("data/06_models/latest_model_artefacts/")
-    destination_path = destination_dir / 'model_weights'
-    # Ensure the destination directory exists
-    destination_dir.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(source_path, destination_path)
-    
-    # copy statistics to latest artefacts
-    source_path = Path(latest_experiment_dir) / 'training_statistics.json'
-    destination_dir = Path("../data/06_models/latest_model_artefacts/")
-    destination_path = destination_dir / 'training_statistics.json'
-    # Ensure the destination directory exists
-    destination_dir.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(source_path, destination_path)
 
-    return register_model
-
-def run_predictions(holdout_df: pd.DataFrame, register_model: pd.DataFrame, model_weights) -> pd.DataFrame:
     
-    df = register_model
-    
+    model_path = Path(latest_experiment_dir) / 'model'
+        
     # Load the Kedro context
     # context = load_context()
     # session = KedroSession.create("fraud_detection_model")
@@ -144,7 +150,7 @@ def run_predictions(holdout_df: pd.DataFrame, register_model: pd.DataFrame, mode
     # model_weights = context.catalog.load('model_weights')
 
     # Load the model
-    model = LudwigModel.load(model_weights)
+    model = LudwigModel.load(model_path)
     
     # run predictions on holdout
     predictions, _ = model.predict(dataset=holdout_df)
@@ -155,7 +161,7 @@ def run_predictions(holdout_df: pd.DataFrame, register_model: pd.DataFrame, mode
     return full_predictions
 
 
-def model_training_diagnostics(full_predictions: pd.DataFrame, training_statistics) -> Tuple[matplotlib.figure.Figure, go.Figure]:
+def model_training_diagnostics(full_predictions: pd.DataFrame) -> Tuple[matplotlib.figure.Figure, go.Figure]:
     
     # plot roc curve 
     fpr, tpr, thresholds = roc_curve(full_predictions['Class'], full_predictions['Class_predictions'])
@@ -178,10 +184,11 @@ def model_training_diagnostics(full_predictions: pd.DataFrame, training_statisti
     # output_dir = parameters["model_options"]["output_dir"]
     latest_experiment_dir = get_latest_experiment_dir(output_dir)
 
-    # json_path = latest_experiment_dir + "/training_statistics.json"
+    json_path = latest_experiment_dir + "/training_statistics.json"
 
     # Load the JSON file
-    train_stats = json.load(training_statistics)
+    with open(json_path, 'r') as f:
+        train_stats = json.load(f)
 
     train_loss = train_stats['training']['Class']['loss']
     validation_loss = train_stats['validation']['Class']['loss']
@@ -204,10 +211,3 @@ def model_training_diagnostics(full_predictions: pd.DataFrame, training_statisti
     loss_plot = fig
     
     return loss_plot, roc_curve
-    
-
-    
-    
-
-    
-    
