@@ -42,7 +42,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             node(
                 func=model_training_diagnostics,
-                inputs=["full_predictions"],
+                inputs=["full_predictions", "params:output_dir"],
                 outputs=["loss_plot", "roc_curve"],
                 name="Model_Diagnostics"
             )

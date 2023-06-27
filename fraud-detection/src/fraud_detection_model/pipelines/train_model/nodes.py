@@ -161,7 +161,7 @@ def run_predictions(holdout_df: pd.DataFrame, exp_run: pd.DataFrame, output_dir)
     return full_predictions
 
 
-def model_training_diagnostics(full_predictions: pd.DataFrame) -> Tuple[matplotlib.figure.Figure, go.Figure]:
+def model_training_diagnostics(full_predictions: pd.DataFrame, output_dir) -> Tuple[matplotlib.figure.Figure, go.Figure]:
     
     # plot roc curve 
     fpr, tpr, thresholds = roc_curve(full_predictions['Class'], full_predictions['Class_predictions'])
@@ -176,7 +176,7 @@ def model_training_diagnostics(full_predictions: pd.DataFrame) -> Tuple[matplotl
     plt.ylabel('True Positive Rate')
     plt.title('Receiver Operating Characteristic')
     plt.legend(loc="lower right")
-    roc_curve = plt.figure()
+    roc_curve_plot = plt.gcf()
     
     # plot loss curve
 
@@ -210,4 +210,4 @@ def model_training_diagnostics(full_predictions: pd.DataFrame) -> Tuple[matplotl
     
     loss_plot = fig
     
-    return loss_plot, roc_curve
+    return loss_plot, roc_curve_plot

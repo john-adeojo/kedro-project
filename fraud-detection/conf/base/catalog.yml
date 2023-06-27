@@ -23,14 +23,6 @@ register_model:
   type: pandas.CSVDataSet
   filepath: data/02_intermediate/register_model.csv
 
-model_weights:
-  type: kedro.extras.datasets.pickle.PickleDataSet
-  filepath: data/06_models/latest_model_artefacts/model_weights.pickle
-
-training_statistics:
-  type: kedro.extras.datasets.json.JSONDataSet
-  filepath: data/06_models/latest_model_artefacts/training_statistics.json
-
 full_predictions:
   type: pandas.CSVDataSet
   filepath: data/07_model_output/full_predictions.csv
@@ -41,9 +33,9 @@ loss_plot:
   plotly_args:
     auto_open: False
 
-roc_curve:
+roc_curve_plot:
   type: kedro.extras.datasets.matplotlib.MatplotlibWriter
-  filepath: data/08_reporting/roc_curve.png
+  filepath: data/08_reporting/roc_curve_plot.png
 
 
 
