@@ -51,30 +51,31 @@ def get_latest_experiment_dir(base_dir):
 # Nodes
 
 
-def read_data(parameters: Dict[str, Any]) -> pd.DataFrame:
+def read_data(data_location) -> pd.DataFrame:
     
-    data_url = parameters["model_options"]["data_location"]
-    creditcard = pd.read_csv(data_url)
+    #data_url = data_location
+    creditcard = pd.read_csv(data_location)
     
     return creditcard
 
 
-def split_data(creditcard: pd.DataFrame, parameters: Dict[str, Any]) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def split_data(creditcard: pd.DataFrame, model_options) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
-    seed = parameters["model_options"]["seed"]
-    test_size = parameters["model_options"]["test_size"]
+    seed = model_options["seed"]
+    test_size = model_options["test_size"]
+    #test_size = parameters["model_options"]["test_size"]
     train_df, holdout_df = train_test_split(creditcard, test_size=test_size, random_state=seed)
     
     return train_df, holdout_df
 
 
-def run_experiment(train_df: pd.DataFrame, parameters: Dict[str, Any]) -> pd.DataFrame:
+def run_experiment(train_df: pd.DataFrame, model_yaml, output_dir) -> pd.DataFrame:
 
     # URL of the raw YAML file in the GitHub repository
-    url = parameters["model_options"]["model_yaml"]
+    #url = parameters["model_options"]["model_yaml"]
 
     # Send a GET request to the URL
-    response = requests.get(url)
+    response = requests.get(model_yaml)
 
     # Raise an exception if the request was unsuccessful
     response.raise_for_status()
@@ -83,7 +84,7 @@ def run_experiment(train_df: pd.DataFrame, parameters: Dict[str, Any]) -> pd.Dat
     config = yaml.safe_load(response.text)
 
     # Set your output directory path
-    output_dir = parameters["model_options"]["output_dir"]
+    #output_dir = parameters["model_options"]["output_dir"]
 
     # Set up your experiment
     model = LudwigModel(config=config)
@@ -101,21 +102,28 @@ def run_experiment(train_df: pd.DataFrame, parameters: Dict[str, Any]) -> pd.Dat
     return exp_run
 
 
-def register_model_artefacts(exp_run, parameters: Dict[str, Any]) -> pd.DataFrame:
+def register_model_artefacts(exp_run: pd.DataFrame, output_dir) -> pd.DataFrame:
     
-    output_dir = parameters["model_options"]["output_dir"]
+    print("PARAMETERS!!!", output_dir)
+    
+    # create dummy output
+    register_model = exp_run
+    
+    #output_dir = parameters["model_options"]["output_dir"]
     
     # Get the latest experiment directory
     latest_experiment_dir = get_latest_experiment_dir(output_dir)
     
     # create the holdout_predictions directory
-    predictions_dir = str(Path(latest_experiment_dir).parent / 'holdout_predictions')
+    predictions_dir = str(Path(latest_experiment_dir) / 'holdout_predictions')
     os.makedirs(predictions_dir, exist_ok=True)
+    
+    print("DIRECTORY", latest_experiment_dir)
 
     # Load the Kedro context
     #context = load_context()
-    session = KedroSession.create("fraud_detection_model")
-    context = session.load_context()
+    # session = KedroSession.create("fraud_detection_model")
+    # context = session.load_context()
 
     # Define the catalog configuration
     catalog_config = {
@@ -133,6 +141,7 @@ def register_model_artefacts(exp_run, parameters: Dict[str, Any]) -> pd.DataFram
         'roc_curve': {
             'type': 'kedro.extras.datasets.matplotlib.MatplotlibWriter',
             'filepath': str(Path(latest_experiment_dir) / 'roc_curve.png'),
+            'plotly_args': {'auto_open': False} 
         },
         'loss_plot': {
             'type': 'kedro.extras.datasets.plotly.PlotlyDataSet',
@@ -145,15 +154,14 @@ def register_model_artefacts(exp_run, parameters: Dict[str, Any]) -> pd.DataFram
     catalog = DataCatalog.from_config(catalog_config, config_loader)
 
     # Add the catalog to the context
-    context.catalog = catalog
+    # context.catalog = catalog
     
-    
-    # create dummy output
-    register_model = exp_run
 
     return register_model
 
-def run_predictions(holdout_df) -> pd.DataFrame:
+def run_predictions(holdout_df: pd.DataFrame, register_model: pd.DataFrame) -> pd.DataFrame:
+    
+    df = register_model
     
     # Load the Kedro context
     # context = load_context()
@@ -175,7 +183,7 @@ def run_predictions(holdout_df) -> pd.DataFrame:
     return full_predictions
 
 
-def model_training_diagnostics(parameters: Dict[str, Any], full_predictions) -> Tuple[matplotlib.figure.Figure, go.Figure]:
+def model_training_diagnostics(full_predictions: pd.DataFrame, output_dir) -> Tuple[matplotlib.figure.Figure, go.Figure]:
     
     # plot roc curve 
     fpr, tpr, thresholds = roc_curve(full_predictions['Class'], full_predictions['Class_predictions'])
@@ -195,7 +203,7 @@ def model_training_diagnostics(parameters: Dict[str, Any], full_predictions) -> 
     # plot loss curve
 
     # Get the latest experiment directory
-    output_dir = parameters["model_options"]["output_dir"]
+    # output_dir = parameters["model_options"]["output_dir"]
     latest_experiment_dir = get_latest_experiment_dir(output_dir)
 
     json_path = latest_experiment_dir + "/training_statistics.json"
