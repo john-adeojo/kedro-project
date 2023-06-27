@@ -15,17 +15,5 @@ holdout_df:
   type: pandas.CSVDataSet
   filepath: data/04_feature/holdout_df.csv
 
-model_convergence_curve:
-  type: plotly.PlotlyDataSet
-  filepath: data/08_reporting/model_convergence_curve.json
-  versioned: true
-  plotly_args:
-    type: scatter
-    fig:
-      x: epochs
-      y: loss
-    layout:
-      xaxis_title: Epochs
-      yaxis_title: Loss
-      title: Training, Validation and Test Loss
+
 
