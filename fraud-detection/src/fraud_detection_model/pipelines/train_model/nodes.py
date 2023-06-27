@@ -13,13 +13,14 @@ import requests
 import yaml
 import json
 from kedro.framework.session import KedroSession
-#from kedro.framework.context import load_context
 from kedro.config import ConfigLoader
 from kedro.io import DataCatalog
 from pathlib import Path
 from typing import Dict, Any, Tuple
 import plotly.graph_objects as go
 import os
+import shutil
+
 
 
 # Helper functions
@@ -108,68 +109,39 @@ def register_model_artefacts(exp_run: pd.DataFrame, output_dir) -> pd.DataFrame:
     
     # create dummy output
     register_model = exp_run
-    
-    #output_dir = parameters["model_options"]["output_dir"]
-    
+        
     # Get the latest experiment directory
     latest_experiment_dir = get_latest_experiment_dir(output_dir)
     
-    # create the holdout_predictions directory
-    predictions_dir = str(Path(latest_experiment_dir) / 'holdout_predictions')
-    os.makedirs(predictions_dir, exist_ok=True)
+    # copy model_Weights to latest artefacts
+    source_path = Path(latest_experiment_dir) / 'model' / 'model_weights'
+    destination_dir = Path("data/06_models/latest_model_artefacts/")
+    destination_path = destination_dir / 'model_weights'
+    # Ensure the destination directory exists
+    destination_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source_path, destination_path)
     
-    print("DIRECTORY", latest_experiment_dir)
-
-    # Load the Kedro context
-    #context = load_context()
-    # session = KedroSession.create("fraud_detection_model")
-    # context = session.load_context()
-
-    # Define the catalog configuration
-    catalog_config = {
-        'ludwig_model': {
-            'type': 'kedro.io.PartitionedDataSet',
-            'path': str(Path(latest_experiment_dir) / 'model'),
-            'dataset': {
-                'type': 'kedro.extras.datasets.pickle.PickleDataSet',
-            },
-        },
-        'holdout_predictions': {
-            'type': 'kedro.extras.datasets.pandas.CSVDataSet',
-            'filepath': str(Path(latest_experiment_dir) / 'holdout_predictions' / 'predictions.csv'),
-        },
-        'roc_curve': {
-            'type': 'kedro.extras.datasets.matplotlib.MatplotlibWriter',
-            'filepath': str(Path(latest_experiment_dir) / 'roc_curve.png'),
-            'plotly_args': {'auto_open': False} 
-        },
-        'loss_plot': {
-            'type': 'kedro.extras.datasets.plotly.PlotlyDataSet',
-            'filepath': str(Path(latest_experiment_dir) / 'loss_plot.html'),
-        },
-    }
-
-    # Load the catalog configuration
-    config_loader = ConfigLoader('conf/base')
-    catalog = DataCatalog.from_config(catalog_config, config_loader)
-
-    # Add the catalog to the context
-    # context.catalog = catalog
-    
+    # copy statistics to latest artefacts
+    source_path = Path(latest_experiment_dir) / 'training_statistics.json'
+    destination_dir = Path("../data/06_models/latest_model_artefacts/")
+    destination_path = destination_dir / 'training_statistics.json'
+    # Ensure the destination directory exists
+    destination_dir.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(source_path, destination_path)
 
     return register_model
 
-def run_predictions(holdout_df: pd.DataFrame, register_model: pd.DataFrame) -> pd.DataFrame:
+def run_predictions(holdout_df: pd.DataFrame, register_model: pd.DataFrame, model_weights) -> pd.DataFrame:
     
     df = register_model
     
     # Load the Kedro context
     # context = load_context()
-    session = KedroSession.create("fraud_detection_model")
-    context = session.load_context()
+    # session = KedroSession.create("fraud_detection_model")
+    # context = session.load_context()
 
     # Load the model weights
-    model_weights = context.catalog.load('model')
+    # model_weights = context.catalog.load('model_weights')
 
     # Load the model
     model = LudwigModel.load(model_weights)
@@ -183,7 +155,7 @@ def run_predictions(holdout_df: pd.DataFrame, register_model: pd.DataFrame) -> p
     return full_predictions
 
 
-def model_training_diagnostics(full_predictions: pd.DataFrame, output_dir) -> Tuple[matplotlib.figure.Figure, go.Figure]:
+def model_training_diagnostics(full_predictions: pd.DataFrame, training_statistics) -> Tuple[matplotlib.figure.Figure, go.Figure]:
     
     # plot roc curve 
     fpr, tpr, thresholds = roc_curve(full_predictions['Class'], full_predictions['Class_predictions'])
@@ -206,15 +178,14 @@ def model_training_diagnostics(full_predictions: pd.DataFrame, output_dir) -> Tu
     # output_dir = parameters["model_options"]["output_dir"]
     latest_experiment_dir = get_latest_experiment_dir(output_dir)
 
-    json_path = latest_experiment_dir + "/training_statistics.json"
+    # json_path = latest_experiment_dir + "/training_statistics.json"
 
     # Load the JSON file
-    with open(json_path, 'r') as f:
-        train_stats = json.load(f)
+    train_stats = json.load(training_statistics)
 
-        train_loss = train_stats['training']['Class']['loss']
-        validation_loss = train_stats['validation']['Class']['loss']
-        test_loss = train_stats['test']['Class']['loss']
+    train_loss = train_stats['training']['Class']['loss']
+    validation_loss = train_stats['validation']['Class']['loss']
+    test_loss = train_stats['test']['Class']['loss']
 
     # Create list of epochs
     epochs = list(range(1, len(train_loss) + 1))

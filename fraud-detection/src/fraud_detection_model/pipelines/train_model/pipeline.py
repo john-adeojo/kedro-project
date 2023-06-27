@@ -36,13 +36,13 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             node(
                 func=run_predictions,
-                inputs=["holdout_df", "register_model"],
+                inputs=["holdout_df", "register_model", "model_weights"],
                 outputs="full_predictions",
                 name="Run_Predictions"
             ),
             node(
                 func=model_training_diagnostics,
-                inputs=["full_predictions", "params:output_dir"],
+                inputs=["full_predictions", "training_statistics"],
                 outputs=["loss_plot", "roc_curve"],
                 name="Model_Diagnostics"
             )
