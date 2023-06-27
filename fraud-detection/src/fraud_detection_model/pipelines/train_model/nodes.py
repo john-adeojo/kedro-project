@@ -54,7 +54,6 @@ def get_latest_experiment_dir(base_dir):
 
 def read_data(data_location) -> pd.DataFrame:
     
-    #data_url = data_location
     creditcard = pd.read_csv(data_location)
     
     return creditcard
@@ -64,16 +63,12 @@ def split_data(creditcard: pd.DataFrame, model_options) -> Tuple[pd.DataFrame, p
 
     seed = model_options["seed"]
     test_size = model_options["test_size"]
-    #test_size = parameters["model_options"]["test_size"]
     train_df, holdout_df = train_test_split(creditcard, test_size=test_size, random_state=seed)
     
     return train_df, holdout_df
 
 
 def run_experiment(train_df: pd.DataFrame, model_yaml, output_dir) -> pd.DataFrame:
-
-    # URL of the raw YAML file in the GitHub repository
-    #url = parameters["model_options"]["model_yaml"]
 
     # Send a GET request to the URL
     response = requests.get(model_yaml)
@@ -83,9 +78,6 @@ def run_experiment(train_df: pd.DataFrame, model_yaml, output_dir) -> pd.DataFra
 
     # Load the YAML data from the response text
     config = yaml.safe_load(response.text)
-
-    # Set your output directory path
-    #output_dir = parameters["model_options"]["output_dir"]
 
     # Set up your experiment
     model = LudwigModel(config=config)
@@ -103,51 +95,13 @@ def run_experiment(train_df: pd.DataFrame, model_yaml, output_dir) -> pd.DataFra
     return exp_run
 
 
-# def register_model_artefacts(exp_run: pd.DataFrame, output_dir) -> pd.DataFrame:
-    
-#     print("PARAMETERS!!!", output_dir)
-    
-#     # create dummy output
-#     register_model = exp_run
-        
-#     # Get the latest experiment directory
-#     latest_experiment_dir = get_latest_experiment_dir(output_dir)
-    
-#     # copy model_Weights to latest artefacts
-#     source_path = Path(latest_experiment_dir) / 'model' / 'model_weights'
-#     destination_dir = Path("data/06_models/latest_model_artefacts/")
-#     destination_path = destination_dir / 'model_weights'
-#     # Ensure the destination directory exists
-#     destination_dir.mkdir(parents=True, exist_ok=True)
-#     shutil.copy2(source_path, destination_path)
-    
-#     # copy statistics to latest artefacts
-#     source_path = Path(latest_experiment_dir) / 'training_statistics.json'
-#     destination_dir = Path("../data/06_models/latest_model_artefacts/")
-#     destination_path = destination_dir / 'training_statistics.json'
-#     # Ensure the destination directory exists
-#     destination_dir.mkdir(parents=True, exist_ok=True)
-#     shutil.copy2(source_path, destination_path)
-
-#     return register_model
-
 def run_predictions(holdout_df: pd.DataFrame, exp_run: pd.DataFrame, output_dir) -> pd.DataFrame:
     
     # dummpy input varibale
     df = exp_run
     
     latest_experiment_dir = get_latest_experiment_dir(output_dir)
-
-    
     model_path = Path(latest_experiment_dir) / 'model'
-        
-    # Load the Kedro context
-    # context = load_context()
-    # session = KedroSession.create("fraud_detection_model")
-    # context = session.load_context()
-
-    # Load the model weights
-    # model_weights = context.catalog.load('model_weights')
 
     # Load the model
     model = LudwigModel.load(model_path)
@@ -179,9 +133,6 @@ def model_training_diagnostics(full_predictions: pd.DataFrame, output_dir) -> Tu
     roc_curve_plot = plt.gcf()
     
     # plot loss curve
-
-    # Get the latest experiment directory
-    # output_dir = parameters["model_options"]["output_dir"]
     latest_experiment_dir = get_latest_experiment_dir(output_dir)
 
     json_path = latest_experiment_dir + "/training_statistics.json"

@@ -28,10 +28,8 @@ full_predictions:
   filepath: data/07_model_output/full_predictions.csv
 
 loss_plot:
-  type: kedro.extras.datasets.plotly.PlotlyDataSet
-  filepath: data/08_reporting/loss_plot.html
-  plotly_args:
-    auto_open: False
+  type: plotly.JSONDataSet
+  filepath: data/08_reporting/loss_plot.json
 
 roc_curve_plot:
   type: kedro.extras.datasets.matplotlib.MatplotlibWriter

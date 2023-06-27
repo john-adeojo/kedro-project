@@ -28,12 +28,6 @@ def create_pipeline(**kwargs) -> Pipeline:
                 outputs="exp_run",
                 name="Run_Experiment"
             ),
-            # node(
-            #     func=register_model_artefacts,
-            #     inputs=["exp_run", "params:output_dir"],
-            #     outputs="register_model",
-            #     name="Register_Model_Artefacts"
-            # ),
             node(
                 func=run_predictions,
                 inputs=["holdout_df", "exp_run", "params:output_dir"],
