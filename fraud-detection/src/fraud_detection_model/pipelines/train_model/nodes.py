@@ -19,6 +19,7 @@ from kedro.io import DataCatalog
 from pathlib import Path
 from typing import Dict, Any, Tuple
 import plotly.graph_objects as go
+import os
 
 
 # Helper functions
@@ -92,6 +93,8 @@ def run_experiment(train_df: pd.DataFrame, parameters: Dict[str, Any]) -> None:
 
 def register_model_artefacts(parameters: Dict[str, Any]) -> None:
     
+    output_dir = parameters["model_options"]["output_dir"]
+    
     # Get the latest experiment directory
     latest_experiment_dir = get_latest_experiment_dir(output_dir)
     
@@ -101,11 +104,8 @@ def register_model_artefacts(parameters: Dict[str, Any]) -> None:
 
     # Load the Kedro context
     #context = load_context()
-    
     session = KedroSession.create("fraud_detection_model")
     context = session.load_context()
-
-    output_dir = parameters["model_options"]["output_dir"]
 
     # Define the catalog configuration
     catalog_config = {
