@@ -12,37 +12,37 @@ def create_pipeline(**kwargs) -> Pipeline:
         [
             node(
                 func=read_data,
-                inputs="train_model",
+                inputs="parameters",
                 outputs="crditcard",
                 name='Import_Data'
             ),
             node(
                 func=split_data,
-                inputs=["creditcard", "train_model"],
+                inputs=["creditcard", "parameters"],
                 outputs=["train_df", "holdout_df"],
                 name="Split_Data"
             ),
             node(
                 func=run_experiment,
-                inputs=["train_df", "train_model"],
+                inputs=["train_df", "parameters"],
                 outputs=None,
                 name="Run_Experiment"
             ),
             node(
                 func=register_model_artefacts,
-                inputs="train_model",
+                inputs="parameters",
                 outputs=None,
                 name="Register_Model_Artefacts"
             ),
             node(
                 func=run_predictions,
-                inputs=["holdout_df", "train_model"],
+                inputs=["holdout_df", "parameters"],
                 outputs="full_predictions",
                 name="Run_Predictions"
             ),
             node(
                 func=model_training_diagnostics,
-                inputs=["full_predictions", "train_model"],
+                inputs=["full_predictions", "parameters"],
                 outputs=["loss_plot", "roc_curve"],
                 name="Model_Diagnostics"
             )
