@@ -42,7 +42,7 @@ def get_latest_experiment_dir(base_dir):
 # Nodes
 
 
-def read_data(parameters: Dict) -> pd.DataFrame:
+def read_data(parameters: Dict[str, any]) -> pd.DataFrame:
     
     data_url = parameters["data_location"]
     creditcard = pd.read_csv(data_url)
@@ -50,7 +50,7 @@ def read_data(parameters: Dict) -> pd.DataFrame:
     return creditcard
 
 
-def split_data(creditcard: pd.DataFrame, parameters: Dict) -> pd.DataFrame:
+def split_data(creditcard: pd.DataFrame, parameters: Dict[str, any]) -> pd.DataFrame:
 
     seed = parameters["seed"]
     test_size = parameters["test_size"]
@@ -59,10 +59,10 @@ def split_data(creditcard: pd.DataFrame, parameters: Dict) -> pd.DataFrame:
     return train_df, holdout_df
 
 
-def run_experiment(train_df: pd.DataFrame, parameters: Dict) -> None:
+def run_experiment(train_df: pd.DataFrame, parameters: Dict[str, any]) -> None:
 
     # URL of the raw YAML file in the GitHub repository
-    url = parameter["model_yaml"]
+    url = parameters["model_yaml"]
 
     # Send a GET request to the URL
     response = requests.get(url)
@@ -86,10 +86,11 @@ def run_experiment(train_df: pd.DataFrame, parameters: Dict) -> None:
     return None
 
 
-def register_model_artefacts(parameters: Dict) -> None:
+def register_model_artefacts(parameters: Dict[str, any]) -> None:
     
     # create the holdout_predictions directory
     predictions_dir = str(Path(latest_experiment_dir).parent / 'holdout_predictions')
+    os.makedirs(predictions_dir, exist_ok=True)
 
     # Load the Kedro context
     context = load_context()
@@ -131,7 +132,7 @@ def register_model_artefacts(parameters: Dict) -> None:
 
     return None
 
-def run_predictions(parameters: Dict, holdout_df) -> pd.DataFrame:
+def run_predictions(parameters: Dict[str, any], holdout_df) -> pd.DataFrame:
     
     # Load the Kedro context
     context = load_context()
@@ -151,7 +152,7 @@ def run_predictions(parameters: Dict, holdout_df) -> pd.DataFrame:
     return full_predictions
 
 
-def model_diagnostics(parameters: Dict, full_predictions) ->:
+def model_training_diagnostics(parameters: Dict[str, any], full_predictions) -> Tuple[matplotlib.figure.Figure, plotly.graph_objs._figure.Figure]:
     
     # plot roc curve 
     fpr, tpr, thresholds = roc_curve(full_predictions['Class'], full_predictions['Class_predictions'])
@@ -170,10 +171,20 @@ def model_diagnostics(parameters: Dict, full_predictions) ->:
     plt.show()
     
     # plot loss curve
-    
-    train_loss = train_stats['training']['Class']['loss']
-    validation_loss = train_stats['validation']['Class']['loss']
-    test_loss = train_stats['test']['Class']['loss']
+
+    # Get the latest experiment directory
+    output_dir = parameters["output_dir"]
+    latest_experiment_dir = get_latest_experiment_dir(output_dir)
+
+    json_path = latest_experiment_dir + "/training_statistics.json"
+
+    # Load the JSON file
+    with open(json_path, 'r') as f:
+        train_stats = json.load(f)
+
+        train_loss = train_stats['training']['Class']['loss']
+        validation_loss = train_stats['validation']['Class']['loss']
+        test_loss = train_stats['test']['Class']['loss']
 
     # Create list of epochs
     epochs = list(range(1, len(train_loss) + 1))
