@@ -1,5 +1,5 @@
 [tool.kedro]
-package_name = "fraud_detection_model"
+package_name = "fraud-detection-model"
 project_name = "Credit Card Fraud Detection"
 kedro_init_version = "0.18.10"
 
@@ -9,7 +9,7 @@ profile = "black"
 [tool.pytest.ini_options]
 addopts = """
 --cov-report term-missing \
---cov src/fraud_detection_model -ra"""
+--cov src/fraud-detection-model -ra"""
 
 [tool.coverage.report]
 fail_under = 0

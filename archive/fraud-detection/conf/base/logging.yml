@@ -34,7 +34,7 @@ loggers:
   kedro:
     level: INFO
 
-  fraud_detection_model:
+  fraud-detection-model:
     level: INFO
 
 root:

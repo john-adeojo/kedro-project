@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 
 entry_point = (
-    "fraud-detection = fraud_detection_model.__main__:main"
+    "fraud-detection = fraud-detection-model.__main__:main"
 )
 
 
@@ -17,7 +17,7 @@ with open("requirements.txt", encoding="utf-8") as f:
             requires.append(req)
 
 setup(
-    name="fraud_detection_model",
+    name="fraud-detection-model",
     version="0.1",
     packages=find_packages(exclude=["tests"]),
     entry_points={"console_scripts": [entry_point]},

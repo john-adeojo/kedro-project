@@ -1,0 +1,6 @@
+artifact_location: file:///C:/Users/johna/anaconda3/envs/kedro-env/kedro-project/fraud-detection/mlruns/420723734957102663
+creation_time: 1687878055318
+experiment_id: '420723734957102663'
+last_update_time: 1687878055318
+lifecycle_stage: active
+name: fraud-detection-model

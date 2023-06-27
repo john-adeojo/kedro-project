@@ -6,6 +6,7 @@ generated using Kedro 0.18.10
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, roc_curve, precision_score, recall_score, f1_score, auc
+import matplotlib
 import matplotlib.pyplot as plt
 from ludwig.api import LudwigModel
 import requests
@@ -15,6 +16,8 @@ from kedro.framework.context import load_context
 from kedro.config import ConfigLoader
 from kedro.io import DataCatalog
 from pathlib import Path
+from typing import Dict, Any, Tuple
+import plotly.graph_objects as go
 
 
 # Helper functions
@@ -42,7 +45,7 @@ def get_latest_experiment_dir(base_dir):
 # Nodes
 
 
-def read_data(parameters: Dict[str, any]) -> pd.DataFrame:
+def read_data(parameters: Dict[str, Any]) -> pd.DataFrame:
     
     data_url = parameters["data_location"]
     creditcard = pd.read_csv(data_url)
@@ -50,7 +53,7 @@ def read_data(parameters: Dict[str, any]) -> pd.DataFrame:
     return creditcard
 
 
-def split_data(creditcard: pd.DataFrame, parameters: Dict[str, any]) -> pd.DataFrame:
+def split_data(creditcard: pd.DataFrame, parameters: Dict[str, Any]) -> pd.DataFrame:
 
     seed = parameters["seed"]
     test_size = parameters["test_size"]
@@ -59,7 +62,7 @@ def split_data(creditcard: pd.DataFrame, parameters: Dict[str, any]) -> pd.DataF
     return train_df, holdout_df
 
 
-def run_experiment(train_df: pd.DataFrame, parameters: Dict[str, any]) -> None:
+def run_experiment(train_df: pd.DataFrame, parameters: Dict[str, Any]) -> None:
 
     # URL of the raw YAML file in the GitHub repository
     url = parameters["model_yaml"]
@@ -74,7 +77,7 @@ def run_experiment(train_df: pd.DataFrame, parameters: Dict[str, any]) -> None:
     config = yaml.safe_load(response.text)
 
     # Set your output directory path
-    output_dir = parameter["output_dir"]
+    output_dir = parameters["output_dir"]
 
     # Set up your experiment
     model = LudwigModel(config=config)
@@ -86,7 +89,7 @@ def run_experiment(train_df: pd.DataFrame, parameters: Dict[str, any]) -> None:
     return None
 
 
-def register_model_artefacts(parameters: Dict[str, any]) -> None:
+def register_model_artefacts(parameters: Dict[str, Any]) -> None:
     
     # create the holdout_predictions directory
     predictions_dir = str(Path(latest_experiment_dir).parent / 'holdout_predictions')
@@ -132,7 +135,7 @@ def register_model_artefacts(parameters: Dict[str, any]) -> None:
 
     return None
 
-def run_predictions(parameters: Dict[str, any], holdout_df) -> pd.DataFrame:
+def run_predictions(parameters: Dict[str, Any], holdout_df) -> pd.DataFrame:
     
     # Load the Kedro context
     context = load_context()
@@ -152,7 +155,7 @@ def run_predictions(parameters: Dict[str, any], holdout_df) -> pd.DataFrame:
     return full_predictions
 
 
-def model_training_diagnostics(parameters: Dict[str, any], full_predictions) -> Tuple[matplotlib.figure.Figure, plotly.graph_objs._figure.Figure]:
+def model_training_diagnostics(parameters: Dict[str, Any], full_predictions) -> Tuple[matplotlib.figure.Figure, go._figure.Figure]:
     
     # plot roc curve 
     fpr, tpr, thresholds = roc_curve(full_predictions['Class'], full_predictions['Class_predictions'])
@@ -167,8 +170,7 @@ def model_training_diagnostics(parameters: Dict[str, any], full_predictions) -> 
     plt.ylabel('True Positive Rate')
     plt.title('Receiver Operating Characteristic')
     plt.legend(loc="lower right")
-    roc_curve = plt
-    plt.show()
+    roc_curve = plt.figure()
     
     # plot loss curve
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 
-# fraud_detection_model documentation build
+# fraud-detection-model documentation build
 # configuration file, created by sphinx-quickstart.
 #
 # This file is execfile()d with the current directory set to its
@@ -21,11 +21,11 @@ import re
 
 from kedro.framework.cli.utils import find_stylesheets
 
-from fraud_detection_model import __version__ as release
+from fraud-detection-model import __version__ as release
 
 # -- Project information -----------------------------------------------------
 
-project = "fraud_detection_model"
+project = "fraud-detection-model"
 author = "Kedro"
 
 # The short X.Y version.
@@ -119,7 +119,7 @@ html_show_sourcelink = False
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "fraud_detection_modeldoc"
+htmlhelp_basename = "fraud-detection-modeldoc"
 
 # -- Options for LaTeX output ------------------------------------------------
 
@@ -147,8 +147,8 @@ latex_elements = {
 latex_documents = [
     (
         master_doc,
-        "fraud_detection_model.tex",
-        "fraud_detection_model Documentation",
+        "fraud-detection-model.tex",
+        "fraud-detection-model Documentation",
         "Kedro",
         "manual",
     )
@@ -161,8 +161,8 @@ latex_documents = [
 man_pages = [
     (
         master_doc,
-        "fraud_detection_model",
-        "fraud_detection_model Documentation",
+        "fraud-detection-model",
+        "fraud-detection-model Documentation",
         [author],
         1,
     )
@@ -176,11 +176,11 @@ man_pages = [
 texinfo_documents = [
     (
         master_doc,
-        "fraud_detection_model",
-        "fraud_detection_model Documentation",
+        "fraud-detection-model",
+        "fraud-detection-model Documentation",
         author,
-        "fraud_detection_model",
-        "Project fraud_detection_model codebase.",
+        "fraud-detection-model",
+        "Project fraud-detection-model codebase.",
         "Data-Science",
     )
 ]
