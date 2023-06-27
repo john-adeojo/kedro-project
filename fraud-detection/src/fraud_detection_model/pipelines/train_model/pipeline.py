@@ -25,13 +25,13 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 func=run_experiment,
                 inputs=["train_df", "parameters"],
-                outputs=None,
+                outputs="exp_run",
                 name="Run_Experiment"
             ),
             node(
                 func=register_model_artefacts,
-                inputs="parameters",
-                outputs=None,
+                inputs=["parameters","exp_run"],
+                outputs="register_model",
                 name="Register_Model_Artefacts"
             ),
             node(

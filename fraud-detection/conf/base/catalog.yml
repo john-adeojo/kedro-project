@@ -9,11 +9,17 @@ creditcard:
 
 train_df:
   type: pandas.CSVDataSet
-  filepath: data/04_feature/train_df.csv
+  filepath: data/02_intermediate/train_df.csv
 
 holdout_df:
   type: pandas.CSVDataSet
-  filepath: data/04_feature/holdout_df.csv
+  filepath: data/02_intermediate/holdout_df.csv
 
+exp_run:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/exp_run.csv
 
+register_model:
+  type: pandas.CSVDataSet
+  filepath: data/02_intermediate/register_model.csv
 

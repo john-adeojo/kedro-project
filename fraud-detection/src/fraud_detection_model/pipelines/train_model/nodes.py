@@ -59,7 +59,7 @@ def read_data(parameters: Dict[str, Any]) -> pd.DataFrame:
     return creditcard
 
 
-def split_data(creditcard: pd.DataFrame, parameters: Dict[str, Any]) -> pd.DataFrame:
+def split_data(creditcard: pd.DataFrame, parameters: Dict[str, Any]) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     seed = parameters["model_options"]["seed"]
     test_size = parameters["model_options"]["test_size"]
@@ -68,7 +68,7 @@ def split_data(creditcard: pd.DataFrame, parameters: Dict[str, Any]) -> pd.DataF
     return train_df, holdout_df
 
 
-def run_experiment(train_df: pd.DataFrame, parameters: Dict[str, Any]) -> None:
+def run_experiment(train_df: pd.DataFrame, parameters: Dict[str, Any]) -> pd.DataFrame:
 
     # URL of the raw YAML file in the GitHub repository
     url = parameters["model_options"]["model_yaml"]
@@ -92,10 +92,16 @@ def run_experiment(train_df: pd.DataFrame, parameters: Dict[str, Any]) -> None:
       output_directory=output_dir
     )
     
-    return None
+    df = pd.DataFrame()
+    
+    # create dummy output
+    exp_run = pd.DataFrame(columns=['action'])
+
+    
+    return exp_run
 
 
-def register_model_artefacts(parameters: Dict[str, Any]) -> None:
+def register_model_artefacts(exp_run, parameters: Dict[str, Any]) -> pd.DataFrame:
     
     output_dir = parameters["model_options"]["output_dir"]
     
@@ -140,8 +146,12 @@ def register_model_artefacts(parameters: Dict[str, Any]) -> None:
 
     # Add the catalog to the context
     context.catalog = catalog
+    
+    
+    # create dummy output
+    register_model = exp_run
 
-    return None
+    return register_model
 
 def run_predictions(holdout_df) -> pd.DataFrame:
     
