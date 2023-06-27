@@ -39,7 +39,11 @@ def get_latest_experiment_dir(base_dir):
 
         # Return the last directory in the sorted list
         latest_dir = sorted_experiment_dirs[-1] if sorted_experiment_dirs else None
-
+        
+        # If latest_dir is None, raise an error
+        if latest_dir is None:
+            raise ValueError(f"No directories starting with 'experiment_run' found in {base_dir}")
+        
         # Return the full path of the latest directory
         return os.path.join(base_dir, latest_dir).replace('\\', '/') if latest_dir else None
 

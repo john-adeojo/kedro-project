@@ -13,7 +13,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             node(
                 func=read_data,
                 inputs="parameters",
-                outputs="crditcard",
+                outputs="creditcard",
                 name='Import_Data'
             ),
             node(
