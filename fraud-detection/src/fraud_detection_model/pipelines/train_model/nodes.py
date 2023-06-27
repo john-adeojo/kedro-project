@@ -48,7 +48,7 @@ def get_latest_experiment_dir(base_dir):
 
 def read_data(parameters: Dict[str, Any]) -> pd.DataFrame:
     
-    data_url = parameters["data_location"]
+    data_url = parameters["model_options"]["data_location"]
     creditcard = pd.read_csv(data_url)
     
     return creditcard
@@ -56,8 +56,8 @@ def read_data(parameters: Dict[str, Any]) -> pd.DataFrame:
 
 def split_data(creditcard: pd.DataFrame, parameters: Dict[str, Any]) -> pd.DataFrame:
 
-    seed = parameters["seed"]
-    test_size = parameters["test_size"]
+    seed = parameters["model_options"]["seed"]
+    test_size = parameters["model_options"]["test_size"]
     train_df, holdout_df = train_test_split(creditcard, test_size=test_size, random_state=seed)
     
     return train_df, holdout_df
@@ -66,7 +66,7 @@ def split_data(creditcard: pd.DataFrame, parameters: Dict[str, Any]) -> pd.DataF
 def run_experiment(train_df: pd.DataFrame, parameters: Dict[str, Any]) -> None:
 
     # URL of the raw YAML file in the GitHub repository
-    url = parameters["model_yaml"]
+    url = parameters["model_options"]["model_yaml"]
 
     # Send a GET request to the URL
     response = requests.get(url)
@@ -78,7 +78,7 @@ def run_experiment(train_df: pd.DataFrame, parameters: Dict[str, Any]) -> None:
     config = yaml.safe_load(response.text)
 
     # Set your output directory path
-    output_dir = parameters["output_dir"]
+    output_dir = parameters["model_options"]["output_dir"]
 
     # Set up your experiment
     model = LudwigModel(config=config)
@@ -92,6 +92,9 @@ def run_experiment(train_df: pd.DataFrame, parameters: Dict[str, Any]) -> None:
 
 def register_model_artefacts(parameters: Dict[str, Any]) -> None:
     
+    # Get the latest experiment directory
+    latest_experiment_dir = get_latest_experiment_dir(output_dir)
+    
     # create the holdout_predictions directory
     predictions_dir = str(Path(latest_experiment_dir).parent / 'holdout_predictions')
     os.makedirs(predictions_dir, exist_ok=True)
@@ -102,10 +105,7 @@ def register_model_artefacts(parameters: Dict[str, Any]) -> None:
     session = KedroSession.create("fraud_detection_model")
     context = session.load_context()
 
-    output_dir = parameters["output_dir"]
-
-    # Get the latest experiment directory
-    latest_experiment_dir = get_latest_experiment_dir(output_dir)
+    output_dir = parameters["model_options"]["output_dir"]
 
     # Define the catalog configuration
     catalog_config = {
@@ -139,7 +139,7 @@ def register_model_artefacts(parameters: Dict[str, Any]) -> None:
 
     return None
 
-def run_predictions(parameters: Dict[str, Any], holdout_df) -> pd.DataFrame:
+def run_predictions(holdout_df) -> pd.DataFrame:
     
     # Load the Kedro context
     # context = load_context()
@@ -181,7 +181,7 @@ def model_training_diagnostics(parameters: Dict[str, Any], full_predictions) -> 
     # plot loss curve
 
     # Get the latest experiment directory
-    output_dir = parameters["output_dir"]
+    output_dir = parameters["model_options"]["output_dir"]
     latest_experiment_dir = get_latest_experiment_dir(output_dir)
 
     json_path = latest_experiment_dir + "/training_statistics.json"

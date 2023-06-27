@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/johna/anaconda3/envs/kedro-env/kedro-project/fraud-detection/mlruns/851856780643093643/8fe4caf173514acd8964c260e278de8b/artifacts
+end_time: 1687882488063
+entry_point_name: ''
+experiment_id: '851856780643093643'
+lifecycle_stage: active
+run_id: 8fe4caf173514acd8964c260e278de8b
+run_name: __default__
+run_uuid: 8fe4caf173514acd8964c260e278de8b
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1687882488009
+status: 4
+tags: []
+user_id: johna

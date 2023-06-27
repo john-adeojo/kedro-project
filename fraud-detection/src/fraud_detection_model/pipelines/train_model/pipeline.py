@@ -36,7 +36,7 @@ def create_pipeline(**kwargs) -> Pipeline:
             ),
             node(
                 func=run_predictions,
-                inputs=["holdout_df", "parameters"],
+                inputs=["holdout_df"],
                 outputs="full_predictions",
                 name="Run_Predictions"
             ),
