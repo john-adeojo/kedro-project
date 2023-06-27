@@ -1,3 +1,8 @@
+"""
+This is a boilerplate pipeline 'train_model'
+generated using Kedro 0.18.10
+"""
+
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, roc_curve, precision_score, recall_score, f1_score, auc
@@ -54,7 +59,7 @@ def split_data(creditcard: pd.DataFrame, parameters: Dict) -> pd.DataFrame:
     return train_df, holdout_df
 
 
-def run_experiment(train_df: pd.DataFrame, parameters: Dict)
+def run_experiment(train_df: pd.DataFrame, parameters: Dict) -> None:
 
     # URL of the raw YAML file in the GitHub repository
     url = parameter["model_yaml"]
@@ -81,7 +86,7 @@ def run_experiment(train_df: pd.DataFrame, parameters: Dict)
     return None
 
 
-def register_model_artefacts(parameters: Dict):
+def register_model_artefacts(parameters: Dict) -> None:
     
     # create the holdout_predictions directory
     predictions_dir = str(Path(latest_experiment_dir).parent / 'holdout_predictions')
@@ -107,6 +112,14 @@ def register_model_artefacts(parameters: Dict):
             'type': 'kedro.extras.datasets.pandas.CSVDataSet',
             'filepath': str(Path(latest_experiment_dir) / 'holdout_predictions' / 'predictions.csv'),
         },
+        'roc_curve': {
+            'type': 'kedro.extras.datasets.matplotlib.MatplotlibWriter',
+            'filepath': str(Path(latest_experiment_dir) / 'roc_curve.png'),
+        },
+        'loss_plot': {
+            'type': 'kedro.extras.datasets.plotly.PlotlyDataSet',
+            'filepath': str(Path(latest_experiment_dir) / 'loss_plot.html'),
+        },
     }
 
     # Load the catalog configuration
@@ -118,7 +131,7 @@ def register_model_artefacts(parameters: Dict):
 
     return None
 
-def run_predictions(parameters: Dict, holdout_df):
+def run_predictions(parameters: Dict, holdout_df) -> pd.DataFrame:
     
     # Load the Kedro context
     context = load_context()
@@ -132,10 +145,55 @@ def run_predictions(parameters: Dict, holdout_df):
     # run predictions on holdout
     predictions, _ = model.predict(dataset=holdout_df)
     
-    model_analysis_df = predictions.merge(right=holdout_df,   left_index=True, right_index=True)
-    model_analysis_df['Class_predictions'] = model_analysis_df['Class_predictions'].map({True: 1, False: 0})
+    full_predictions = predictions.merge(right=holdout_df,   left_index=True, right_index=True)
+    full_predictions['Class_predictions'] = full_predictions['Class_predictions'].map({True: 1, False: 0})
     
+    return full_predictions
+
+
+def model_diagnostics(parameters: Dict, full_predictions) ->:
     
+    # plot roc curve 
+    fpr, tpr, thresholds = roc_curve(full_predictions['Class'], full_predictions['Class_predictions'])
+    roc_auc = auc(fpr, tpr)
+
+    plt.figure()
+    plt.plot(fpr, tpr, color='darkorange', lw=2, label='ROC curve (area = %0.2f)' % roc_auc)
+    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver Operating Characteristic')
+    plt.legend(loc="lower right")
+    roc_curve = plt
+    plt.show()
+    
+    # plot loss curve
+    
+    train_loss = train_stats['training']['Class']['loss']
+    validation_loss = train_stats['validation']['Class']['loss']
+    test_loss = train_stats['test']['Class']['loss']
+
+    # Create list of epochs
+    epochs = list(range(1, len(train_loss) + 1))
+
+    # Create the plot
+    fig = go.Figure()
+
+    # Add traces
+    fig.add_trace(go.Scatter(x=epochs, y=train_loss, mode='lines', name='Training loss'))
+    fig.add_trace(go.Scatter(x=epochs, y=validation_loss, mode='lines', name='Validation loss'))
+    fig.add_trace(go.Scatter(x=epochs, y=test_loss, mode='lines', name='Test loss'))
+
+    # Add details
+    fig.update_layout(title='Training, Validation and Test Loss', xaxis_title='Epochs', yaxis_title='Loss')
+    
+    loss_plot = fig
+    
+    return loss_plot, roc_curve
+    
+
     
     
 
