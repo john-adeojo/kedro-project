@@ -32,8 +32,8 @@ loss_plot:
   filepath: data/08_reporting/loss_plot.json
 
 roc_curve_plot:
-  type: kedro.extras.datasets.matplotlib.MatplotlibWriter
-  filepath: data/08_reporting/roc_curve_plot.png
+  type: plotly.JSONDataSet
+  filepath: data/08_reporting/roc_curve_plot.json
 
 
 

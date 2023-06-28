@@ -20,6 +20,8 @@ from typing import Dict, Any, Tuple
 import plotly.graph_objects as go
 import os
 import shutil
+import glob
+
 
 
 
@@ -47,6 +49,24 @@ def get_latest_experiment_dir(base_dir):
         
         # Return the full path of the latest directory
         return os.path.join(base_dir, latest_dir).replace('\\', '/') if latest_dir else None
+    
+import glob
+
+def print_file_names():
+    # Get a list of all HDF5 files in the current directory
+    hdf5_files = glob.glob('*.hdf5')
+
+    # Print each HDF5 file name
+    for file in hdf5_files:
+        print("HDF5_FILES",file)
+
+    # Get a list of all JSON files in the current directory
+    json_files = glob.glob('*.json')
+
+    # Print each JSON file name
+    for file in json_files:
+        print("JSON_FILES", file)
+
 
     
 # Nodes
@@ -90,6 +110,8 @@ def run_experiment(train_df: pd.DataFrame, model_yaml, output_dir) -> pd.DataFra
     
     # create dummy output
     exp_run = pd.DataFrame(columns=['action'])
+    
+    print_file_names()
 
     
     return exp_run
@@ -118,19 +140,45 @@ def run_predictions(holdout_df: pd.DataFrame, exp_run: pd.DataFrame, output_dir)
 def model_training_diagnostics(full_predictions: pd.DataFrame, output_dir) -> Tuple[matplotlib.figure.Figure, go.Figure]:
     
     # plot roc curve 
+    
+    # plot roc curve 
     fpr, tpr, thresholds = roc_curve(full_predictions['Class'], full_predictions['Class_predictions'])
     roc_auc = auc(fpr, tpr)
 
-    plt.figure()
-    plt.plot(fpr, tpr, color='darkorange', lw=2, label='ROC curve (area = %0.2f)' % roc_auc)
-    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-    plt.xlim([0.0, 1.0])
-    plt.ylim([0.0, 1.05])
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.title('Receiver Operating Characteristic')
-    plt.legend(loc="lower right")
-    roc_curve_plot = plt.gcf()
+    # Create the base figure
+    fig = go.Figure()
+
+    # Add the ROC curve
+    fig.add_trace(go.Scatter(x=fpr, y=tpr, mode='lines', name=f'ROC curve (area = {roc_auc:.2f})'))
+
+    # Add the random guess line
+    fig.add_trace(go.Scatter(x=[0, 1], y=[0, 1], mode='lines', name='Random Guess', line=dict(dash='dash')))
+
+    # Update the layout
+    fig.update_layout(
+        xaxis_title='False Positive Rate',
+        yaxis_title='True Positive Rate',
+        yaxis=dict(scaleanchor="x", scaleratio=1),
+        xaxis=dict(constrain='domain'),
+        width=700, height=700,
+        title='Receiver Operating Characteristic'
+    )
+
+    roc_curve_plot = fig
+    
+#     fpr, tpr, thresholds = roc_curve(full_predictions['Class'], full_predictions['Class_predictions'])
+#     roc_auc = auc(fpr, tpr)
+
+#     plt.figure()
+#     plt.plot(fpr, tpr, color='darkorange', lw=2, label='ROC curve (area = %0.2f)' % roc_auc)
+#     plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+#     plt.xlim([0.0, 1.0])
+#     plt.ylim([0.0, 1.05])
+#     plt.xlabel('False Positive Rate')
+#     plt.ylabel('True Positive Rate')
+#     plt.title('Receiver Operating Characteristic')
+#     plt.legend(loc="lower right")
+#     roc_curve_plot = plt.gcf()
     
     # plot loss curve
     latest_experiment_dir = get_latest_experiment_dir(output_dir)
