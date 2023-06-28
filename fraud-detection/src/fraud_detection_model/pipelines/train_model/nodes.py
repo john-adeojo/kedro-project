@@ -23,8 +23,6 @@ import shutil
 import glob
 
 
-
-
 # Helper functions
 
 def get_latest_experiment_dir(base_dir):
@@ -52,25 +50,23 @@ def get_latest_experiment_dir(base_dir):
     
 import glob
 
-def print_file_names():
+def delete_file():
     # Get a list of all HDF5 files in the current directory
     hdf5_files = glob.glob('*.hdf5')
 
     # Print each HDF5 file name
     for file in hdf5_files:
-        print("HDF5_FILES",file)
+        os.remove(file)
 
     # Get a list of all JSON files in the current directory
     json_files = glob.glob('*.json')
 
     # Print each JSON file name
     for file in json_files:
-        print("JSON_FILES", file)
+        os.remove(file)
 
 
-    
 # Nodes
-
 
 def read_data(data_location) -> pd.DataFrame:
     
@@ -111,7 +107,7 @@ def run_experiment(train_df: pd.DataFrame, model_yaml, output_dir) -> pd.DataFra
     # create dummy output
     exp_run = pd.DataFrame(columns=['action'])
     
-    print_file_names()
+    delete_file()
 
     
     return exp_run
