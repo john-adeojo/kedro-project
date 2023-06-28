@@ -1,6 +1,6 @@
-data_location: "G:/My Drive/Data-Centric Solutions/07. Blog Posts/kedro/data/creditcard.csv"
+data_location: YOUR_DATA_STORE
 model_yaml: "https://raw.githubusercontent.com/john-adeojo/Credit-Card-Fraud-Model-Registry/main/model%20yaml%20files/model_1a.yaml"
-output_dir: "C:/Users/johna/anaconda3/envs/kedro-env/kedro-project/fraud-detection/data/06_models"
+output_dir: "../data/06_models"
 model_options:
   seed: 42
   test_size: 0.2
