@@ -1,0 +1,28 @@
+name: kedro-env
+channels:
+  - conda-forge
+  - pytorch
+  - nvidia
+dependencies:
+  - python=3.10  # or any version you prefer
+  - pip
+  - cudatoolkit=11.8
+  - pytorch
+  - torchvision
+  - torchaudio
+  - pip:
+    - kedro
+    - ludwig
+    - scikit-learn
+    - pandas
+    - plotly
+    - seaborn~=0.12.1
+    - matplotlib
+    - pip-tools
+    - jupyterlab
+    - kedro-viz
+    - kedro-datasets[matplotlib.MatplotlibWriter]~=1.1
+    - kedro-datasets[pandas.CSVDataSet, pandas.ExcelDataSet, pandas.ParquetDataSet]~=1.1
+    - kedro-datasets[plotly.PlotlyDataSet, plotly.JSONDataSet]~=1.1
+    - kedro-mlflow
+    - dvc[gdrive]
