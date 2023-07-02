@@ -102,7 +102,7 @@ def run_experiment(train_df: pd.DataFrame, model_yaml, output_dir) -> pd.DataFra
       output_directory=output_dir
     )
     
-    df = pd.DataFrame()
+    # df = pd.DataFrame()
     
     # create dummy output
     exp_run = pd.DataFrame(columns=['action'])
